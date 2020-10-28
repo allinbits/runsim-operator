@@ -50,6 +50,10 @@ func (r *SimulationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		}, err
 	}
 
+	if r.setSimulationDefaults(&sim) {
+		return ctrl.Result{Requeue: true}, r.Update(ctx, &sim)
+	}
+
 	r.Log.WithValues("simulation", sim.Name).Info("reconciling")
 	return ctrl.Result{}, r.ReconcileSimulation(ctx, &sim)
 }

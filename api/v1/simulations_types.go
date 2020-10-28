@@ -46,7 +46,7 @@ type ConfigSpec struct {
 
 	// Timeout at which the simulations will fail if they run longer than it.
 	// +optional
-	// +kubebuilder:validation:Pattern=\d+(s|m|h|d)
+	// +kubebuilder:validation:Pattern=\d+(s|m|h)
 	// +kubebuilder:default="24h"
 	Timeout string `json:"timeout,omitempty"`
 

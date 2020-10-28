@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"context"
+	"reflect"
 
 	toolsv1 "github.com/allinbits/runsim-operator/api/v1"
 )
@@ -32,6 +33,48 @@ func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *too
 	log.Info("updating status")
 	updateGlobalStatus(sim)
 	return r.Status().Update(ctx, sim)
+}
+
+func (r *SimulationReconciler) setSimulationDefaults(sim *toolsv1.Simulation) bool {
+	old := sim.DeepCopy()
+
+	if sim.Spec.Target.Repo == "" {
+		sim.Spec.Target.Repo = DefaultRepo
+	}
+
+	if sim.Spec.Target.Version == "" {
+		sim.Spec.Target.Version = DefaultVersion
+	}
+
+	if sim.Spec.Target.Package == "" {
+		sim.Spec.Target.Package = DefaultPackage
+	}
+
+	if sim.Spec.Config.Test == "" {
+		sim.Spec.Config.Test = DefaultTest
+	}
+
+	if sim.Spec.Config.Blocks == 0 {
+		sim.Spec.Config.Blocks = DefaultBlocks
+	}
+
+	if sim.Spec.Config.Period == 0 {
+		sim.Spec.Config.Period = DefaultPeriod
+	}
+
+	if sim.Spec.Config.Timeout == "" {
+		sim.Spec.Config.Timeout = DefaultTimeout
+	}
+
+	if len(sim.Spec.Config.Seeds) == 0 {
+		sim.Spec.Config.Seeds = DefaultSeeds
+	}
+
+	if sim.Spec.Config.Resources.Limits == nil && sim.Spec.Config.Resources.Requests == nil {
+		sim.Spec.Config.Resources = DefaultResources
+	}
+
+	return !reflect.DeepEqual(old, sim)
 }
 
 func updateGlobalStatus(sim *toolsv1.Simulation) {

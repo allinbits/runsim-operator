@@ -16,11 +16,6 @@ import (
 	toolsv1 "github.com/allinbits/runsim-operator/api/v1"
 )
 
-const (
-	SeedAnnotation = "tools.cosmos.network/simulation-seed"
-	NameLabelKey   = "simulation"
-)
-
 func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simulation, seed int) (*batchv1.Job, error) {
 	job := getJobSpec(sim, seed)
 
