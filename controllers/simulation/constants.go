@@ -6,13 +6,16 @@ import (
 )
 
 const (
-	DefaultRepo    = "https://github.com/cosmos/cosmos-sdk"
-	DefaultVersion = "master"
-	DefaultPackage = "./simapp"
-	DefaultTest    = "TestFullAppSimulation"
-	DefaultBlocks  = 100
-	DefaultPeriod  = 1
-	DefaultTimeout = "24h"
+	DefaultRepo                = "https://github.com/cosmos/cosmos-sdk"
+	DefaultVersion             = "master"
+	DefaultPackage             = "./simapp"
+	DefaultTest                = "TestFullAppSimulation"
+	DefaultBlocks              = 100
+	DefaultPeriod              = 1
+	DefaultTimeout             = "24h"
+	DefaultGenesisConfigMapKey = "genesis.json"
+
+	genesisMountPath = "/config"
 
 	SeedAnnotation = "tools.cosmos.network/simulation-seed"
 	NameLabelKey   = "simulation"

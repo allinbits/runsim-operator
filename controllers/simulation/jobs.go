@@ -86,7 +86,7 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 }
 
 func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
-	return &batchv1.Job{
+	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      getJobName(sim, seed),
 			Namespace: sim.Namespace,
@@ -176,10 +176,33 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 			},
 		},
 	}
+
+	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {
+		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
+			Name: "genesis",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: sim.Spec.Config.Genesis.FromConfigMap.Name,
+					},
+				},
+			},
+		})
+		job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+			Name:      "genesis",
+			ReadOnly:  true,
+			MountPath: genesisMountPath,
+		})
+	}
+
+	return job
 }
 
 func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
-	return fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true -Seed=%d -Period=%d -v -timeout %s",
+	cmd := fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true -Seed=%d -Period=%d -v -timeout %s",
 		sim.Spec.Target.Package, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
-
+	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {
+		cmd += fmt.Sprintf(" -Genesis=%s/%s", genesisMountPath, sim.Spec.Config.Genesis.FromConfigMap.Key)
+	}
+	return cmd
 }

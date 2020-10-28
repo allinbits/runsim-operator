@@ -57,6 +57,27 @@ spec:
                     description: For how many blocks the simulation should run.
                     minimum: 1
                     type: integer
+                  genesis:
+                    description: Genesis specifies the genesis to be provided to the
+                      simulation.
+                    properties:
+                      fromConfigMap:
+                        description: Allows specifying a genesis from a configmap.
+                        properties:
+                          key:
+                            default: genesis.json
+                            description: Key specifies the key in configmap containing
+                              the genesis file.
+                            minLength: 1
+                            type: string
+                          name:
+                            description: Name of the configmap.
+                            minLength: 1
+                            type: string
+                        required:
+                        - name
+                        type: object
+                    type: object
                   period:
                     default: 5
                     description: Block period.

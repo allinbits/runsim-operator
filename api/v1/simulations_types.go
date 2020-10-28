@@ -59,6 +59,29 @@ type ConfigSpec struct {
 	// Resources describes the desired compute resource requirements for each simulation job.
 	// +optional
 	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+
+	// Genesis specifies the genesis to be provided to the simulation.
+	// +optional
+	Genesis *GenesisSpec `json:"genesis,omitempty"`
+}
+
+// GenesisSpec specifies the genesis to be provided to the simulation.
+type GenesisSpec struct {
+	// Allows specifying a genesis from a configmap.
+	// +optional
+	FromConfigMap *FromConfigMapConfig `json:"fromConfigMap,omitempty"`
+}
+
+type FromConfigMapConfig struct {
+	// Name of the configmap.
+	// +kubebuilder:validation:MinLength=1
+	Name string `json:"name"`
+
+	// Key specifies the key in configmap containing the genesis file.
+	// +optional
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:default="genesis.json"
+	Key string `json:"key,omitempty"`
 }
 
 // TargetSpec specifies simulation parameters

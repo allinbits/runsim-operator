@@ -34,6 +34,7 @@ func (r *SimulationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 // +kubebuilder:rbac:groups=tools.cosmos.network,resources=simulations/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;
 
 func (r *SimulationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()

@@ -74,6 +74,12 @@ func (r *SimulationReconciler) setSimulationDefaults(sim *toolsv1.Simulation) bo
 		sim.Spec.Config.Resources = DefaultResources
 	}
 
+	if sim.Spec.Config.Genesis != nil &&
+		sim.Spec.Config.Genesis.FromConfigMap != nil &&
+		sim.Spec.Config.Genesis.FromConfigMap.Key == "" {
+		sim.Spec.Config.Genesis.FromConfigMap.Key = DefaultGenesisConfigMapKey
+	}
+
 	return !reflect.DeepEqual(old, sim)
 }
 
