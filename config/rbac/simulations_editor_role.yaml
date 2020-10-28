@@ -1,0 +1,24 @@
+# permissions for end users to edit simulations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: simulations-editor-role
+rules:
+- apiGroups:
+  - tools.cosmos.network
+  resources:
+  - simulations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tools.cosmos.network
+  resources:
+  - simulations/status
+  verbs:
+  - get

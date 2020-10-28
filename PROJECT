@@ -1,0 +1,7 @@
+domain: cosmos.network
+repo: github.com/cosmos/runsim-operator
+resources:
+- group: tools
+  kind: Simulations
+  version: v1
+version: "2"

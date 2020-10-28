@@ -1,0 +1,20 @@
+# permissions for end users to view simulations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: simulations-viewer-role
+rules:
+- apiGroups:
+  - tools.cosmos.network
+  resources:
+  - simulations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - tools.cosmos.network
+  resources:
+  - simulations/status
+  verbs:
+  - get

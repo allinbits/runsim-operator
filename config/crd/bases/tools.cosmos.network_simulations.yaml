@@ -1,0 +1,221 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: simulations.tools.cosmos.network
+spec:
+  group: tools.cosmos.network
+  names:
+    kind: Simulation
+    listKind: SimulationList
+    plural: simulations
+    singular: simulation
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.status
+      name: Status
+      type: string
+    - jsonPath: .status.running
+      name: Running
+      type: integer
+    - jsonPath: .status.succeeded
+      name: Succeeded
+      type: integer
+    - jsonPath: .status.failed
+      name: Failed
+      type: integer
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Simulation is the Schema for the simulations API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: SimulationSpec defines the desired state of Simulation
+            properties:
+              config:
+                description: Specifies simulation parameters
+                properties:
+                  blocks:
+                    default: 100
+                    description: For how many blocks the simulation should run.
+                    minimum: 1
+                    type: integer
+                  period:
+                    default: 5
+                    description: Block period.
+                    minimum: 1
+                    type: integer
+                  resources:
+                    description: Resources describes the desired compute resource
+                      requirements for each simulation job.
+                    properties:
+                      limits:
+                        additionalProperties:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                        description: 'Limits describes the maximum amount of compute
+                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                        type: object
+                      requests:
+                        additionalProperties:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                        description: 'Requests describes the minimum amount of compute
+                          resources required. If Requests is omitted for a container,
+                          it defaults to Limits if that is explicitly specified, otherwise
+                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                        type: object
+                    type: object
+                  seeds:
+                    default:
+                    - 1
+                    - 2
+                    - 4
+                    - 7
+                    - 32
+                    - 123
+                    - 124
+                    - 582
+                    - 1893
+                    - 2989
+                    - 3012
+                    - 4728
+                    - 37827
+                    - 981928
+                    - 87821
+                    - 891823782
+                    - 989182
+                    - 89182391
+                    - 11
+                    - 22
+                    - 44
+                    - 77
+                    - 99
+                    - 2020
+                    - 3232
+                    - 123123
+                    - 124124
+                    - 582582
+                    - 18931893
+                    - 29892989
+                    - 30123012
+                    - 47284728
+                    - 7601778
+                    - 8090485
+                    - 977367484
+                    - 491163361
+                    - 424254581
+                    - 673398983
+                    description: Seeds to run simulations for.
+                    items:
+                      type: integer
+                    minItems: 1
+                    type: array
+                  test:
+                    default: TestFullAppSimulation
+                    description: The name of the test to run.
+                    minLength: 1
+                    type: string
+                  timeout:
+                    default: 24h
+                    description: Timeout at which the simulations will fail if they
+                      run longer than it.
+                    pattern: \d+(s|m|h|d)
+                    type: string
+                type: object
+              target:
+                description: Specifies the target package to run simulations for
+                properties:
+                  package:
+                    default: simapp
+                    description: The package to run simulations for.
+                    minLength: 1
+                    type: string
+                  repo:
+                    default: https://github.com/cosmos/cosmos-sdk
+                    description: The repository that contains the package to run simulations
+                      for.
+                    minLength: 1
+                    type: string
+                  version:
+                    default: master
+                    description: The repository that contains the package to run simulations
+                      for.
+                    minLength: 1
+                    type: string
+                type: object
+            type: object
+          status:
+            description: SimulationStatus defines the observed state of Simulation
+            properties:
+              failed:
+                description: The number of jobs that failed.
+                type: integer
+              jobStatus:
+                description: Per job simulation status.
+                items:
+                  description: JobStatus indicates the simulation status per job.
+                  properties:
+                    name:
+                      description: The name of the job running the simulation.
+                      type: string
+                    seed:
+                      description: The seed being run by the simulation.
+                      type: integer
+                    status:
+                      description: The status of this job's simulation.
+                      type: string
+                  required:
+                  - name
+                  - seed
+                  - status
+                  type: object
+                type: array
+              running:
+                description: The number of jobs running.
+                type: integer
+              status:
+                description: Global simulations status.
+                type: string
+              succeeded:
+                description: The number of jobs that completed successfully.
+                type: integer
+            required:
+            - failed
+            - running
+            - succeeded
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

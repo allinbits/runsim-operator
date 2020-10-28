@@ -1,0 +1,8 @@
+resources:
+- manager.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: controller
+  newName: 388991194029.dkr.ecr.us-east-1.amazonaws.com/tendermint/runsim-operator
+  newTag: latest
