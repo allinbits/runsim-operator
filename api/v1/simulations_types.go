@@ -70,6 +70,10 @@ type GenesisSpec struct {
 	// Allows specifying a genesis from a configmap.
 	// +optional
 	FromConfigMap *FromConfigMapConfig `json:"fromConfigMap,omitempty"`
+
+	// Allows specifying a genesis from a URL
+	// +optional
+	FromURL string `json:"fromUrl,omitempty"`
 }
 
 type FromConfigMapConfig struct {

@@ -77,6 +77,9 @@ spec:
                         required:
                         - name
                         type: object
+                      fromUrl:
+                        description: Allows specifying a genesis from a URL
+                        type: string
                     type: object
                   period:
                     default: 5
