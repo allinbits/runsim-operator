@@ -179,7 +179,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 		},
 	}
 
-	if sim.Spec.Config.Genesis.FromURL != "" {
+	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		job.Spec.Template.Spec.InitContainers = append(job.Spec.Template.Spec.InitContainers, corev1.Container{
 			Name:  "download-genesis",
 			Image: "busybox",
@@ -218,7 +218,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
 	cmd := fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true -Seed=%d -Period=%d -v -timeout %s",
 		sim.Spec.Target.Package, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
-	if sim.Spec.Config.Genesis.FromURL != "" {
+	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		cmd += " -Genesis=/workspace/genesis.json"
 	} else if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {
 		cmd += fmt.Sprintf(" -Genesis=%s/%s", genesisMountPath, sim.Spec.Config.Genesis.FromConfigMap.Key)

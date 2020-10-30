@@ -33,11 +33,11 @@ var (
 
 	DefaultResources = corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("1200m"),
-			corev1.ResourceMemory: resource.MustParse("512Mi"),
+			corev1.ResourceCPU:    resource.MustParse("2000m"),
+			corev1.ResourceMemory: resource.MustParse("1Gi"),
 		},
 		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("1200m"),
+			corev1.ResourceCPU:    resource.MustParse("750m"),
 			corev1.ResourceMemory: resource.MustParse("512Mi"),
 		},
 	}

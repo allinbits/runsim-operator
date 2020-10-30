@@ -13,8 +13,6 @@ spec:
     blocks: 10
     period: 1
     timeout: 24h
-    genesis:
-      fromUrl: https://tendermint-simulation-genesis.s3.amazonaws.com/genesis.json
     seeds:
       - 1
       - 2
