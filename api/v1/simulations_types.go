@@ -11,6 +11,7 @@ const (
 	SimulationRunning SimStatus = "Running"
 	SimulationFailed  SimStatus = "Failed"
 	SimulationSucceed SimStatus = "Succeed"
+	SimulationPending SimStatus = "Pending"
 )
 
 // SimulationSpec defines the desired state of Simulation
@@ -124,6 +125,9 @@ type SimulationStatus struct {
 	// The number of jobs that failed.
 	Failed *int `json:"failed"`
 
+	// The number of jobs that is pending.
+	Pending *int `json:"pending"`
+
 	// Per job simulation status.
 	// +optional
 	JobStatus []JobStatus `json:"jobStatus"`
@@ -147,6 +151,7 @@ type JobStatus struct {
 // +kubebuilder:printcolumn:name="Running",type=integer,JSONPath=`.status.running`
 // +kubebuilder:printcolumn:name="Succeeded",type=integer,JSONPath=`.status.succeeded`
 // +kubebuilder:printcolumn:name="Failed",type=integer,JSONPath=`.status.failed`
+// +kubebuilder:printcolumn:name="Pending",type=integer,JSONPath=`.status.pending`
 
 // Simulation is the Schema for the simulations API
 type Simulation struct {

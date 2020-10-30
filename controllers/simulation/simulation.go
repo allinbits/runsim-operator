@@ -84,7 +84,7 @@ func (r *SimulationReconciler) setSimulationDefaults(sim *toolsv1.Simulation) bo
 }
 
 func updateGlobalStatus(sim *toolsv1.Simulation) {
-	var running, failed, succeeded int
+	var running, failed, succeeded, pending int
 
 	for _, job := range sim.Status.JobStatus {
 		switch job.Status {
@@ -94,18 +94,23 @@ func updateGlobalStatus(sim *toolsv1.Simulation) {
 			succeeded += 1
 		case toolsv1.SimulationFailed:
 			failed += 1
+		case toolsv1.SimulationPending:
+			pending += 1
 		}
 	}
 
 	sim.Status.Succeeded = &succeeded
 	sim.Status.Failed = &failed
 	sim.Status.Running = &running
+	sim.Status.Pending = &pending
 
 	switch {
 	case succeeded == len(sim.Status.JobStatus):
 		sim.Status.Status = toolsv1.SimulationSucceed
 	case failed > 0:
 		sim.Status.Status = toolsv1.SimulationFailed
+	case pending == len(sim.Status.JobStatus):
+		sim.Status.Status = toolsv1.SimulationPending
 	default:
 		sim.Status.Status = toolsv1.SimulationRunning
 	}

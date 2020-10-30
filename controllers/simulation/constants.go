@@ -37,8 +37,8 @@ var (
 			corev1.ResourceMemory: resource.MustParse("512Mi"),
 		},
 		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("650m"),
-			corev1.ResourceMemory: resource.MustParse("350Mi"),
+			corev1.ResourceCPU:    resource.MustParse("1200m"),
+			corev1.ResourceMemory: resource.MustParse("512Mi"),
 		},
 	}
 )

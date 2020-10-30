@@ -29,6 +29,9 @@ spec:
     - jsonPath: .status.failed
       name: Failed
       type: integer
+    - jsonPath: .status.pending
+      name: Pending
+      type: integer
     name: v1
     schema:
       openAPIV3Schema:
@@ -218,6 +221,9 @@ spec:
                   - status
                   type: object
                 type: array
+              pending:
+                description: The number of jobs that is pending.
+                type: integer
               running:
                 description: The number of jobs running.
                 type: integer
@@ -229,6 +235,7 @@ spec:
                 type: integer
             required:
             - failed
+            - pending
             - running
             - succeeded
             type: object

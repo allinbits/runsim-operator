@@ -58,8 +58,10 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 		status = toolsv1.SimulationSucceed
 	case job.Status.Failed > 0:
 		status = toolsv1.SimulationFailed
-	default:
+	case job.Status.Active > 0:
 		status = toolsv1.SimulationRunning
+	default:
+		status = toolsv1.SimulationPending
 	}
 
 	jobsExists := false
