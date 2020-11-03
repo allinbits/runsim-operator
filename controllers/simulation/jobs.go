@@ -153,6 +153,21 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 								},
 							},
 						},
+						// Initialize required fifos
+						{
+							Name:  "init-fifos",
+							Image: "busybox",
+							Args: []string{
+								"sh", "-c",
+								"mkdir -p /workspace/.tmp && mkfifo /workspace/.tmp/state && mkfifo /workspace/.tmp/params",
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "data",
+									MountPath: "/workspace",
+								},
+							},
+						},
 					},
 					Containers: []corev1.Container{
 						// Main container performing the simulation
@@ -172,6 +187,28 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 							},
 							Resources: sim.Spec.Config.Resources,
 						},
+						{
+							Name:  "state",
+							Image: "busybox",
+							Args:  []string{"cat", "/workspace/.tmp/state"},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "data",
+									MountPath: "/workspace",
+								},
+							},
+						},
+						{
+							Name:  "params",
+							Image: "busybox",
+							Args:  []string{"cat", "/workspace/.tmp/params"},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "data",
+									MountPath: "/workspace",
+								},
+							},
+						},
 					},
 					RestartPolicy: corev1.RestartPolicyNever,
 				},
@@ -185,7 +222,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 			Image: "busybox",
 			Args: []string{
 				"sh", "-c",
-				fmt.Sprintf("wget %s --no-check-certificate -O /workspace/genesis.json", sim.Spec.Config.Genesis.FromURL),
+				fmt.Sprintf("wget %s --no-check-certificate -O /workspace/.tmp/genesis.json", sim.Spec.Config.Genesis.FromURL),
 			},
 			VolumeMounts: []corev1.VolumeMount{
 				{
@@ -216,10 +253,11 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 }
 
 func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
-	cmd := fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true -Seed=%d -Period=%d -v -timeout %s",
+	cmd := fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
+		" -Seed=%d -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
 		sim.Spec.Target.Package, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
 	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
-		cmd += " -Genesis=/workspace/genesis.json"
+		cmd += " -Genesis=/workspace/.tmp/genesis.json"
 	} else if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {
 		cmd += fmt.Sprintf(" -Genesis=%s/%s", genesisMountPath, sim.Spec.Config.Genesis.FromConfigMap.Key)
 	}
