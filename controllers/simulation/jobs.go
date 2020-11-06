@@ -88,6 +88,9 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 }
 
 func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
+	simCommand := "trap \"echo '' > /workspace/.tmp/params; echo '' > /workspace/.tmp/state\" EXIT; cd /workspace; "
+	simCommand += getSimulationCmd(sim, seed)
+
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      getJobName(sim, seed),
@@ -174,7 +177,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 						{
 							Name:  "simulation",
 							Image: "golang",
-							Args:  []string{"bash", "-c", fmt.Sprintf("cd /workspace && %s", getSimulationCmd(sim, seed))},
+							Args:  []string{"bash", "-c", simCommand},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "data",
