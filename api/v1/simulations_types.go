@@ -131,6 +131,10 @@ type SimulationStatus struct {
 	// Per job simulation status.
 	// +optional
 	JobStatus []JobStatus `json:"jobStatus"`
+
+	// Genesis shows genesis information when one is provided in spec
+	// +optional
+	Genesis *GenesisInfo `json:"genesis,omitempty"`
 }
 
 // JobStatus indicates the simulation status per job.
@@ -143,6 +147,12 @@ type JobStatus struct {
 
 	// The status of this job's simulation.
 	Status SimStatus `json:"status"`
+}
+
+// GenesisInfo shows genesis information
+type GenesisInfo struct {
+	ChainId string `json:"chain_id"`
+	Sha256  string `json:"sha256"`
 }
 
 // +kubebuilder:object:root=true

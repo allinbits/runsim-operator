@@ -2,9 +2,11 @@ package simulation
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	toolsv1 "github.com/allinbits/runsim-operator/api/v1"
+	"github.com/allinbits/runsim-operator/internal/genesis"
 )
 
 func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *toolsv1.Simulation) error {
@@ -32,6 +34,9 @@ func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *too
 
 	log.Info("updating status")
 	updateGlobalStatus(sim)
+	if err := updateGenesisStatus(sim); err != nil {
+		return fmt.Errorf("could not retrieve information from genesis: %v", err)
+	}
 	return r.Status().Update(ctx, sim)
 }
 
@@ -115,4 +120,20 @@ func updateGlobalStatus(sim *toolsv1.Simulation) {
 		sim.Status.Status = toolsv1.SimulationRunning
 	}
 
+}
+
+func updateGenesisStatus(sim *toolsv1.Simulation) error {
+	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
+		if sim.Status.Genesis == nil {
+			chainId, hash, err := genesis.GetChainIdAndHashFromRemote(sim.Spec.Config.Genesis.FromURL)
+			if err != nil {
+				return err
+			}
+			sim.Status.Genesis = &toolsv1.GenesisInfo{
+				ChainId: chainId,
+				Sha256:  hash,
+			}
+		}
+	}
+	return nil
 }

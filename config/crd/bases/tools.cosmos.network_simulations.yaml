@@ -201,6 +201,18 @@ spec:
               failed:
                 description: The number of jobs that failed.
                 type: integer
+              genesis:
+                description: Genesis shows genesis information when one is provided
+                  in spec
+                properties:
+                  chain_id:
+                    type: string
+                  sha256:
+                    type: string
+                required:
+                - chain_id
+                - sha256
+                type: object
               jobStatus:
                 description: Per job simulation status.
                 items:
