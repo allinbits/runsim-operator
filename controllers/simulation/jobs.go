@@ -171,6 +171,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 									MountPath: "/workspace",
 								},
 							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
 						},
 					},
 					Containers: []corev1.Container{
@@ -201,6 +202,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 									MountPath: "/workspace",
 								},
 							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
 						},
 						{
 							Name:  "params",
@@ -212,6 +214,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 									MountPath: "/workspace",
 								},
 							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
 						},
 					},
 					RestartPolicy: corev1.RestartPolicyNever,
