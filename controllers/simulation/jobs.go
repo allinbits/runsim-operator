@@ -19,7 +19,7 @@ import (
 func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simulation, seed int) (*batchv1.Job, error) {
 	job := getJobSpec(sim, seed)
 
-	if err := ctrl.SetControllerReference(sim, job, r.Scheme); err != nil {
+	if err := ctrl.SetControllerReference(sim, job, r.scheme); err != nil {
 		return nil, err
 	}
 
@@ -177,7 +177,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 					Containers: []corev1.Container{
 						// Main container performing the simulation
 						{
-							Name:  "simulation",
+							Name:  simulationContainerName,
 							Image: "golang",
 							Args:  []string{"bash", "-c", simCommand},
 							VolumeMounts: []corev1.VolumeMount{
@@ -193,7 +193,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 							Resources: sim.Spec.Config.Resources,
 						},
 						{
-							Name:  "state",
+							Name:  stateContainerName,
 							Image: "busybox",
 							Args:  []string{"sh", "-c", "cat /workspace/.tmp/state && rm /workspace/.tmp/state"},
 							VolumeMounts: []corev1.VolumeMount{
@@ -205,7 +205,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 							ImagePullPolicy: corev1.PullIfNotPresent,
 						},
 						{
-							Name:  "params",
+							Name:  paramsContainerName,
 							Image: "busybox",
 							Args:  []string{"sh", "-c", "cat /workspace/.tmp/params && rm /workspace/.tmp/params"},
 							VolumeMounts: []corev1.VolumeMount{

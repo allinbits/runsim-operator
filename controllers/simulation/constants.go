@@ -17,8 +17,13 @@ const (
 
 	genesisMountPath = "/config"
 
-	SeedAnnotation = "tools.cosmos.network/simulation-seed"
-	NameLabelKey   = "simulation"
+	SeedAnnotation      = "tools.cosmos.network/simulation-seed"
+	LogBackupAnnotation = "tools.cosmos.network/logs-backed-up"
+	NameLabelKey        = "simulation"
+
+	simulationContainerName = "simulation"
+	stateContainerName      = "state"
+	paramsContainerName     = "params"
 )
 
 var (

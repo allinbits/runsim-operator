@@ -6,3 +6,9 @@ images:
 - name: controller
   newName: 388991194029.dkr.ecr.us-east-1.amazonaws.com/tendermint/runsim-operator
   newTag: latest
+
+secretGenerator:
+- behavior: create
+  envs:
+  - env
+  name: aws-credentials

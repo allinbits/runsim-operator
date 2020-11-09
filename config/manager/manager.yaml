@@ -30,4 +30,15 @@ spec:
         image: controller:latest
         name: manager
         imagePullPolicy: Always
+        env:
+          - name: S3_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: S3_ACCESS_KEY_ID
+          - name: S3_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: aws-credentials
+                key: S3_SECRET_ACCESS_KEY
       terminationGracePeriodSeconds: 10

@@ -10,7 +10,7 @@ import (
 )
 
 func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *toolsv1.Simulation) error {
-	log := r.Log.WithValues("simulations", sim.Name)
+	log := r.log.WithValues("simulations", sim.Name)
 
 	for _, seed := range sim.Spec.Config.Seeds {
 		// Get the job if it already exists
@@ -29,6 +29,12 @@ func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *too
 
 		if err := updateJobStatus(sim, job); err != nil {
 			return err
+		}
+
+		if r.opts.LogBackupEnabled {
+			if err := r.backupJobLogs(ctx, sim, job); err != nil {
+				return err
+			}
 		}
 	}
 

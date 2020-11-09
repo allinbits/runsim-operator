@@ -28,12 +28,20 @@ import (
 
 	toolsv1 "github.com/allinbits/runsim-operator/api/v1"
 	"github.com/allinbits/runsim-operator/controllers/simulation"
+	"github.com/allinbits/runsim-operator/internal/environ"
 	// +kubebuilder:scaffold:imports
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	scheme               = runtime.NewScheme()
+	setupLog             = ctrl.Log.WithName("setup")
+	metricsAddr          string
+	enableLeaderElection bool
+
+	minioEndpoint   string
+	minioBucketName string
+	s3AccessKeyID   string
+	s3AccessSecret  string
 )
 
 func init() {
@@ -41,15 +49,17 @@ func init() {
 
 	_ = toolsv1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
+
+	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false, "Enable leader election for controller manager")
+
+	flag.StringVar(&minioEndpoint, "minio-endpoint", environ.GetString("MINIO_ENDPOINT", simulation.DefaultMinioEndpoint), "endpoint for minio (only s3 supported)")
+	flag.StringVar(&minioBucketName, "minio-bucket-name", environ.GetString("MINIO_BUCKET_NAME", simulation.DefaultLogsBucketName), "minio bucket name")
+	flag.StringVar(&s3AccessKeyID, "s3-access-key-id", environ.GetString("S3_ACCESS_KEY_ID", ""), "aws s3 access key id (for minio)")
+	flag.StringVar(&s3AccessSecret, "s3-secret-access-key", environ.GetString("S3_SECRET_ACCESS_KEY", ""), "aws s3 secret access key (for minio)")
 }
 
 func main() {
-	var metricsAddr string
-	var enableLeaderElection bool
-	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
@@ -66,14 +76,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&simulation.SimulationReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Simulations"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	if err := simulation.SetupSimulationReconciler(mgr,
+		simulation.EnableLogBackups(true),
+		simulation.MinioEndpoint(minioEndpoint),
+		simulation.LogsBucketName(minioBucketName),
+		simulation.S3AccessKeyId(s3AccessKeyID),
+		simulation.S3SecretAccessKey(s3AccessSecret),
+	); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Simulations")
 		os.Exit(1)
 	}
+
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
