@@ -88,8 +88,9 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 }
 
 func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
-	simCommand := "trap \"echo '' > /workspace/.tmp/params; echo '' > /workspace/.tmp/state\" EXIT; cd /workspace; "
-	simCommand += getSimulationCmd(sim, seed)
+	simCommand := "trap \"[ -p /workspace/.tmp/params ] && echo '' > /workspace/.tmp/params; " +
+		"[ -p /workspace/.tmp/state ] && echo '' > /workspace/.tmp/state\" EXIT; cd /workspace; " +
+		getSimulationCmd(sim, seed)
 
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
@@ -193,7 +194,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 						{
 							Name:  "state",
 							Image: "busybox",
-							Args:  []string{"cat", "/workspace/.tmp/state"},
+							Args:  []string{"sh", "-c", "cat /workspace/.tmp/state && rm /workspace/.tmp/state"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "data",
@@ -204,7 +205,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 						{
 							Name:  "params",
 							Image: "busybox",
-							Args:  []string{"cat", "/workspace/.tmp/params"},
+							Args:  []string{"sh", "-c", "cat /workspace/.tmp/params && rm /workspace/.tmp/params"},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "data",
