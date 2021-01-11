@@ -55,6 +55,11 @@ spec:
               config:
                 description: Specifies simulation parameters
                 properties:
+                  benchmark:
+                    default: false
+                    description: Specifies whether the simulation should run as a
+                      test or as a benchmark
+                    type: boolean
                   blocks:
                     default: 100
                     description: For how many blocks the simulation should run.

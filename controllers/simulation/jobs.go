@@ -265,9 +265,13 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 }
 
 func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
-	cmd := fmt.Sprintf("go test %s -run %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
+	runFlag := "run"
+	if sim.Spec.Config.Benchmark {
+		runFlag = "bench"
+	}
+	cmd := fmt.Sprintf("go test %s -%s %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
 		" -Seed=%d -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
-		sim.Spec.Target.Package, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
+		sim.Spec.Target.Package, runFlag, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
 	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		cmd += " -Genesis=/workspace/.tmp/genesis.json"
 	} else if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {

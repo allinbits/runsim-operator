@@ -33,6 +33,12 @@ type ConfigSpec struct {
 	// +kubebuilder:default=TestFullAppSimulation
 	Test string `json:"test,omitempty"`
 
+	// Specifies whether the simulation should run as a test
+	// or as a benchmark
+	// +optional
+	// +kubebuilder:default=false
+	Benchmark bool `json:"benchmark"`
+
 	// For how many blocks the simulation should run.
 	// +optional
 	// +kubebuilder:validation:Minimum=1
