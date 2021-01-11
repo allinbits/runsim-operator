@@ -1,0 +1,14 @@
+apiVersion: tools.cosmos.network/v1
+kind: Simulation
+metadata:
+  name: gaia-v3.0.0
+spec:
+  config:
+    blocks: 10000
+    period: 5
+    timeout: 730h
+    test: BenchmarkFullAppSimulation
+  target:
+    package: ./app
+    repo: https://github.com/cosmos/gaia
+    version: v3.0.0

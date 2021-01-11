@@ -106,6 +106,11 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 		Spec: batchv1.JobSpec{
 			BackoffLimit: pointer.Int32Ptr(0),
 			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						"cluster-autoscaler.kubernetes.io/safe-to-evict": "false",
+					},
+				},
 				Spec: corev1.PodSpec{
 					Volumes: []corev1.Volume{
 						// Volume where app repository will be cloned to
