@@ -60,6 +60,11 @@ spec:
                     description: Specifies whether the simulation should run as a
                       test or as a benchmark
                     type: boolean
+                  blockSize:
+                    default: 200
+                    description: The size of each block
+                    minimum: 1
+                    type: integer
                   blocks:
                     default: 100
                     description: For how many blocks the simulation should run.

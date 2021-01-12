@@ -291,9 +291,9 @@ func getSimulationCmd(sim *toolsv1.Simulation, seed string) string {
 		cmd += fmt.Sprintf("-run=%s ", sim.Spec.Config.Test)
 	}
 
-	cmd += fmt.Sprintf("-Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
+	cmd += fmt.Sprintf("-Enabled=true -NumBlocks=%d -Verbose=true -Commit=true -BlockSize=%d"+
 		" -Seed=%s -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
-		sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
+		sim.Spec.Config.Blocks, sim.Spec.Config.BlockSize, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
 	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		cmd += " -Genesis=/workspace/.tmp/genesis.json"
 	} else if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {

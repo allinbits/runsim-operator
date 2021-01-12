@@ -79,6 +79,10 @@ func (r *SimulationReconciler) setSimulationDefaults(sim *toolsv1.Simulation) bo
 		sim.Spec.Config.Blocks = DefaultBlocks
 	}
 
+	if sim.Spec.Config.BlockSize == 0 {
+		sim.Spec.Config.BlockSize = DefaultBlockSize
+	}
+
 	if sim.Spec.Config.Period == 0 {
 		sim.Spec.Config.Period = DefaultPeriod
 	}

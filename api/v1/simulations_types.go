@@ -45,6 +45,12 @@ type ConfigSpec struct {
 	// +kubebuilder:default=100
 	Blocks int `json:"blocks,omitempty"`
 
+	// The size of each block
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:default=200
+	BlockSize int `json:"blockSize"`
+
 	// Block period.
 	// +optional
 	// +kubebuilder:validation:Minimum=1

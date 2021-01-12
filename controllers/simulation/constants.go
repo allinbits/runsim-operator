@@ -11,6 +11,7 @@ const (
 	DefaultPackage             = "./simapp"
 	DefaultTest                = "TestFullAppSimulation"
 	DefaultBlocks              = 100
+	DefaultBlockSize           = 200
 	DefaultPeriod              = 1
 	DefaultTimeout             = "24h"
 	DefaultGenesisConfigMapKey = "genesis.json"
