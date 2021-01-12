@@ -47,7 +47,7 @@ var _ = Describe("Simulation controller", func() {
 						Blocks:  100,
 						Period:  1,
 						Timeout: "24h",
-						Seeds:   []int{1, 2, 4, 7},
+						Seeds:   []string{"1", "2", "4", "7"},
 					},
 				},
 			}

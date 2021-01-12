@@ -60,8 +60,8 @@ type ConfigSpec struct {
 	// Seeds to run simulations for.
 	// +optional
 	// +kubebuilder:validation:MinItems=1
-	// +kubebuilder:default={1,2,4,7,32,123,124,582,1893,2989,3012,4728,37827,981928,87821,891823782,989182,89182391,11,22,44,77,99,2020,3232,123123,124124,582582,18931893,29892989,30123012,47284728,7601778,8090485,977367484,491163361,424254581,673398983}
-	Seeds []int `json:"seeds,omitempty"`
+	// +kubebuilder:default={"1","2","4","7","32","123","124","582","1893","2989","3012","4728","37827","981928","87821","891823782","989182","89182391","11","22","44","77","99","2020","3232","123123","124124","582582","18931893","29892989","30123012","47284728","7601778","8090485","977367484","491163361","424254581","673398983"}
+	Seeds []string `json:"seeds,omitempty"`
 
 	// Resources describes the desired compute resource requirements for each simulation job.
 	// +optional
@@ -149,7 +149,7 @@ type JobStatus struct {
 	Name string `json:"name"`
 
 	// The seed being run by the simulation.
-	Seed int `json:"seed"`
+	Seed string `json:"seed"`
 
 	// The status of this job's simulation.
 	Status SimStatus `json:"status"`

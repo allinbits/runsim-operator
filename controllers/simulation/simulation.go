@@ -38,6 +38,16 @@ func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *too
 		}
 	}
 
+	// Delete jobs removed from spec
+	for _, s := range sim.Status.JobStatus {
+		if !contains(sim.Spec.Config.Seeds, s.Seed) {
+			if err := r.MaybeDeleteJob(ctx, sim, s.Seed); err != nil {
+				return err
+			}
+			removeJobFromStatus(sim, s.Name)
+		}
+	}
+
 	log.Info("updating status")
 	updateGlobalStatus(sim)
 	if err := updateGenesisStatus(sim); err != nil {
@@ -142,4 +152,13 @@ func updateGenesisStatus(sim *toolsv1.Simulation) error {
 		}
 	}
 	return nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

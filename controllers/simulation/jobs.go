@@ -3,7 +3,6 @@ package simulation
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -16,7 +15,7 @@ import (
 	toolsv1 "github.com/allinbits/runsim-operator/api/v1"
 )
 
-func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simulation, seed int) (*batchv1.Job, error) {
+func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simulation, seed string) (*batchv1.Job, error) {
 	job := getJobSpec(sim, seed)
 
 	if r.opts.ImagePullSecret != "" {
@@ -36,7 +35,15 @@ func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simul
 	return job, nil
 }
 
-func (r *SimulationReconciler) GetJob(ctx context.Context, sim *toolsv1.Simulation, seed int) (*batchv1.Job, error) {
+func (r *SimulationReconciler) MaybeDeleteJob(ctx context.Context, sim *toolsv1.Simulation, seed string) error {
+	err := r.Delete(ctx, getJobSpec(sim, seed))
+	if err != nil && errors.IsNotFound(err) {
+		return nil
+	}
+	return err
+}
+
+func (r *SimulationReconciler) GetJob(ctx context.Context, sim *toolsv1.Simulation, seed string) (*batchv1.Job, error) {
 	job := &batchv1.Job{}
 	err := r.Get(ctx, types.NamespacedName{Namespace: sim.Namespace, Name: getJobName(sim, seed)}, job)
 	if err != nil {
@@ -48,8 +55,8 @@ func (r *SimulationReconciler) GetJob(ctx context.Context, sim *toolsv1.Simulati
 	return job, nil
 }
 
-func getJobName(sim *toolsv1.Simulation, seed int) string {
-	return fmt.Sprintf("%s-%d", sim.Name, seed)
+func getJobName(sim *toolsv1.Simulation, seed string) string {
+	return fmt.Sprintf("%s-%s", sim.Name, seed)
 }
 
 func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
@@ -79,13 +86,9 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 	}
 
 	if !jobsExists {
-		seed, err := strconv.Atoi(job.Annotations[SeedAnnotation])
-		if err != nil {
-			return err
-		}
 		sim.Status.JobStatus = append(sim.Status.JobStatus, toolsv1.JobStatus{
 			Name:   job.Name,
-			Seed:   seed,
+			Seed:   job.Annotations[SeedAnnotation],
 			Status: status,
 		})
 	}
@@ -93,7 +96,16 @@ func updateJobStatus(sim *toolsv1.Simulation, job *batchv1.Job) error {
 	return nil
 }
 
-func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
+func removeJobFromStatus(sim *toolsv1.Simulation, jobName string) {
+	for i, j := range sim.Status.JobStatus {
+		if j.Name == jobName {
+			sim.Status.JobStatus = append(sim.Status.JobStatus[:i], sim.Status.JobStatus[i+1:]...)
+			return
+		}
+	}
+}
+
+func getJobSpec(sim *toolsv1.Simulation, seed string) *batchv1.Job {
 	simCommand := "trap \"[ -p /workspace/.tmp/params ] && echo '' > /workspace/.tmp/params; " +
 		"[ -p /workspace/.tmp/state ] && echo '' > /workspace/.tmp/state\" EXIT; cd /workspace; " +
 		getSimulationCmd(sim, seed)
@@ -106,7 +118,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 				NameLabelKey: sim.Name,
 			},
 			Annotations: map[string]string{
-				SeedAnnotation: strconv.Itoa(seed),
+				SeedAnnotation: seed,
 			},
 		},
 		Spec: batchv1.JobSpec{
@@ -270,7 +282,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 	return job
 }
 
-func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
+func getSimulationCmd(sim *toolsv1.Simulation, seed string) string {
 	cmd := fmt.Sprintf("go test %s ", sim.Spec.Target.Package)
 
 	if sim.Spec.Config.Benchmark {
@@ -280,7 +292,7 @@ func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
 	}
 
 	cmd += fmt.Sprintf("-Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
-		" -Seed=%d -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
+		" -Seed=%s -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
 		sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
 	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		cmd += " -Genesis=/workspace/.tmp/genesis.json"
