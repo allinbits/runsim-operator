@@ -19,6 +19,7 @@ type Options struct {
 	LogsBucketName    string
 	S3AccessKeyId     string
 	S3SecretAccessKey string
+	ImagePullSecret   string
 }
 
 type Option func(*Options)
@@ -50,5 +51,11 @@ func S3AccessKeyId(s string) Option {
 func S3SecretAccessKey(s string) Option {
 	return func(opts *Options) {
 		opts.S3SecretAccessKey = s
+	}
+}
+
+func WithImagePullSecret(s string) Option {
+	return func(opts *Options) {
+		opts.ImagePullSecret = s
 	}
 }

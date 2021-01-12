@@ -42,6 +42,8 @@ var (
 	minioBucketName string
 	s3AccessKeyID   string
 	s3AccessSecret  string
+
+	imagePullSecret string
 )
 
 func init() {
@@ -57,6 +59,7 @@ func init() {
 	flag.StringVar(&minioBucketName, "minio-bucket-name", environ.GetString("MINIO_BUCKET_NAME", simulation.DefaultLogsBucketName), "minio bucket name")
 	flag.StringVar(&s3AccessKeyID, "s3-access-key-id", environ.GetString("S3_ACCESS_KEY_ID", ""), "aws s3 access key id (for minio)")
 	flag.StringVar(&s3AccessSecret, "s3-secret-access-key", environ.GetString("S3_SECRET_ACCESS_KEY", ""), "aws s3 secret access key (for minio)")
+	flag.StringVar(&imagePullSecret, "image-pull-secret", environ.GetString("IMAGE_PULL_SECRET", ""), "name of secret with credentials for pulling docker images")
 }
 
 func main() {
@@ -82,6 +85,7 @@ func main() {
 		simulation.LogsBucketName(minioBucketName),
 		simulation.S3AccessKeyId(s3AccessKeyID),
 		simulation.S3SecretAccessKey(s3AccessSecret),
+		simulation.WithImagePullSecret(imagePullSecret),
 	); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Simulations")
 		os.Exit(1)

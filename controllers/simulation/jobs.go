@@ -19,6 +19,12 @@ import (
 func (r *SimulationReconciler) CreateJob(ctx context.Context, sim *toolsv1.Simulation, seed int) (*batchv1.Job, error) {
 	job := getJobSpec(sim, seed)
 
+	if r.opts.ImagePullSecret != "" {
+		job.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{{
+			Name: r.opts.ImagePullSecret,
+		}}
+	}
+
 	if err := ctrl.SetControllerReference(sim, job, r.scheme); err != nil {
 		return nil, err
 	}
@@ -265,13 +271,17 @@ func getJobSpec(sim *toolsv1.Simulation, seed int) *batchv1.Job {
 }
 
 func getSimulationCmd(sim *toolsv1.Simulation, seed int) string {
-	runFlag := "run"
+	cmd := fmt.Sprintf("go test %s ", sim.Spec.Target.Package)
+
 	if sim.Spec.Config.Benchmark {
-		runFlag = "bench"
+		cmd += fmt.Sprintf("-bench=%s -run=nothing ", sim.Spec.Config.Test)
+	} else {
+		cmd += fmt.Sprintf("-run=%s ", sim.Spec.Config.Test)
 	}
-	cmd := fmt.Sprintf("go test %s -%s %s -Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
+
+	cmd += fmt.Sprintf("-Enabled=true -NumBlocks=%d -Verbose=true -Commit=true"+
 		" -Seed=%d -Period=%d -v -timeout %s -ExportParamsPath /workspace/.tmp/params -ExportStatePath /workspace/.tmp/state",
-		sim.Spec.Target.Package, runFlag, sim.Spec.Config.Test, sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
+		sim.Spec.Config.Blocks, seed, sim.Spec.Config.Period, sim.Spec.Config.Timeout)
 	if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromURL != "" {
 		cmd += " -Genesis=/workspace/.tmp/genesis.json"
 	} else if sim.Spec.Config.Genesis != nil && sim.Spec.Config.Genesis.FromConfigMap != nil {

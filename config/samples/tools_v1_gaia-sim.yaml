@@ -9,6 +9,13 @@ spec:
     timeout: 730h
     benchmark: true
     test: BenchmarkFullAppSimulation
+    resources:
+      limits:
+        cpu: "2"
+        memory: 4Gi
+      requests:
+        cpu: 750m
+        memory: 2Gi
   target:
     package: ./app
     repo: https://github.com/cosmos/gaia

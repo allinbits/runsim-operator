@@ -41,4 +41,6 @@ spec:
               secretKeyRef:
                 name: aws-credentials
                 key: S3_SECRET_ACCESS_KEY
+          - name: IMAGE_PULL_SECRET
+            value: regcred
       terminationGracePeriodSeconds: 10
