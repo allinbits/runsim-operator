@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -53,6 +54,38 @@ func (r *SimulationReconciler) GetJob(ctx context.Context, sim *toolsv1.Simulati
 		return nil, err
 	}
 	return job, nil
+}
+
+func (r *SimulationReconciler) getJobPods(job *batchv1.Job) ([]*corev1.Pod, error) {
+	labelSelector := metav1.LabelSelector{MatchLabels: map[string]string{"controller-uid": string(job.ObjectMeta.UID)}}
+	podList, err := r.clientset.CoreV1().Pods(job.Namespace).List(metav1.ListOptions{
+		LabelSelector: labels.Set(labelSelector.MatchLabels).String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	pods := make([]*corev1.Pod, len(podList.Items))
+	for i, pod := range podList.Items {
+		pods[i] = &pod
+	}
+	return pods, err
+}
+
+func (r *SimulationReconciler) removeSafeToEvictAnnotation(job *batchv1.Job) error {
+	pods, err := r.getJobPods(job)
+	if err != nil {
+		return err
+	}
+
+	for _, pod := range pods {
+		if _, ok := pod.Annotations[CASafeToEvictAnnotation]; ok {
+			delete(pod.Annotations, CASafeToEvictAnnotation)
+			if _, err := r.clientset.CoreV1().Pods(job.Namespace).Update(pod); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func getJobName(sim *toolsv1.Simulation, seed string) string {
@@ -126,7 +159,7 @@ func getJobSpec(sim *toolsv1.Simulation, seed string) *batchv1.Job {
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{
-						"cluster-autoscaler.kubernetes.io/safe-to-evict": "false",
+						CASafeToEvictAnnotation: "false",
 					},
 				},
 				Spec: corev1.PodSpec{

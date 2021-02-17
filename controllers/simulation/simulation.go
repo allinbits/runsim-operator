@@ -36,6 +36,12 @@ func (r *SimulationReconciler) ReconcileSimulation(ctx context.Context, sim *too
 				return err
 			}
 		}
+
+		if job.Status.Succeeded > 0 || job.Status.Failed > 0 {
+			if err := r.removeSafeToEvictAnnotation(job); err != nil {
+				return err
+			}
+		}
 	}
 
 	// Delete jobs removed from spec

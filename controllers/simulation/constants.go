@@ -22,6 +22,8 @@ const (
 	LogBackupAnnotation = "tools.cosmos.network/logs-backed-up"
 	NameLabelKey        = "simulation"
 
+	CASafeToEvictAnnotation = "cluster-autoscaler.kubernetes.io/safe-to-evict"
+
 	simulationContainerName = "simulation"
 	stateContainerName      = "state"
 	paramsContainerName     = "params"
@@ -35,7 +37,7 @@ var (
 		"3232", "123123", "124124", "582582", "18931893",
 		"29892989", "30123012", "47284728", "7601778", "8090485",
 		"977367484", "491163361", "424254581", "673398983",
-		"9071117693009442039","5577006791947779410", "4037200794235010051",
+		"9071117693009442039", "5577006791947779410", "4037200794235010051",
 		"2775422040480279449", "894385949183117216",
 	}
 

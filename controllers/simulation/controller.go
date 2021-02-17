@@ -69,7 +69,7 @@ func SetupSimulationReconciler(mgr ctrl.Manager, opts ...Option) error {
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list
-// +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch;update
 // +kubebuilder:rbac:groups="",resources=pods/log,verbs=get;list;watch
 
 func (r *SimulationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
