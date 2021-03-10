@@ -1,7 +1,7 @@
 apiVersion: tools.cosmos.network/v1
 kind: Simulation
 metadata:
-  name: gaia-v4.0.6
+  name: gaia-v4.1.0
 spec:
   config:
     blocks: 10000
@@ -13,4 +13,4 @@ spec:
   target:
     package: ./app
     repo: https://github.com/cosmos/gaia
-    version: v4.0.6
+    version: v4.1.0
