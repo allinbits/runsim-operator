@@ -1,7 +1,7 @@
 apiVersion: tools.cosmos.network/v1
 kind: Simulation
 metadata:
-  name: cosmos-sdk-v0.42.0
+  name: cosmos-sdk-v0.42.3
 spec:
   config:
     blocks: 10000
@@ -11,4 +11,4 @@ spec:
   target:
     package: ./simapp
     repo: https://github.com/cosmos/cosmos-sdk
-    version: v0.42.0
+    version: v0.42.3
